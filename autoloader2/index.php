@@ -3,5 +3,9 @@
 require_once 'Autoloader.php';
 Autoloader::register();
 
-$klasse1 = new Klasse1();
+$class = isset($_GET['class']) ? $_GET['class'] : 'klasse1';
+$method = isset($_GET['method']) ? $_GET['method'] : 'getData';
+$p = isset($_GET['p']) ? $_GET['p'] : 0;
+
+$klasse = new $class($method, $p);
 ?>
