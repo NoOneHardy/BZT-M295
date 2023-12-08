@@ -8,7 +8,7 @@ class Klasse1 {
 
     public function getData() {
         $sql = "SELECT * FROM cars";
-        $data = DB::query($sql);
+        $data = DB::query($sql, array());
         echo "<pre>";
         print_r($data);
         echo "</pre>";

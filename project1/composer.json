@@ -1,0 +1,20 @@
+{
+    "name": "noonehardy/project1",
+    "autoload": {
+        "psr-4": {
+            "Noonehardy\\Project1\\App\\Car\\": "app/car/",
+            "Noonehardy\\Project1\\App\\Customer\\": "app/rent/",
+            "Noonehardy\\Project1\\App\\Rent\\": "app/rent/",
+            "Noonehardy\\Project1\\Data\\": "db/"
+        }
+    },
+    "authors": [
+        {
+            "name": "NoOneHardy",
+            "email": "silas.hardegger@outlook.com"
+        }
+    ],
+    "require": {
+        "steampixel/simple-php-router": "^0.7.1"
+    }
+}
