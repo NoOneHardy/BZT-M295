@@ -5,8 +5,17 @@ namespace Noonehardy\Project1\Data;
 use PDO, PDOException;
 
 class DB {
-    private $con = null;
-    public static function query($queryString, $bind = array()) {
+    private ?PDO $con = null;    
+    /**
+     * query
+     *
+     * @param  string $queryString
+     * @param  array $bind {
+     *   id: string | int | null
+     * }
+     * @return bool
+     */
+    public static function query(string $queryString, array $bind = array()): bool | string {
         $db = 'm295';
         $user = 'root';
         $pass = '';
@@ -34,7 +43,7 @@ class DB {
         }
     }
 
-    public static function checkDB($db) {
+    public static function checkDB(string $db) : void {
         $user = "root";
         $password = "";
         $dbExists = false;
@@ -68,7 +77,7 @@ class DB {
             $sql = file_get_contents(__DIR__.'/dbcreate.sql');
             $con = new PDO("mysql:host=localhost", $user, $password);
 
-            $statement = $con->prepare($sql);
+            $statement = $con->prepare(strval($sql));
             $statement->execute();
             $con = null;
         }

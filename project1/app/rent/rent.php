@@ -7,7 +7,14 @@ use Noonehardy\Project1\Data\DB;
 
 class Rent
 {
-    public function __construct($method = '', $parameter = '')
+    /**
+     * __construct
+     *
+     * @param  string $method
+     * @param  string | int $parameter
+     * @return void
+     */
+    public function __construct(string $method = '', string|int $parameter = '')
     {
         if ($method != '') {
             if ($parameter != '') {
@@ -24,12 +31,17 @@ class Rent
         }
     }
 
-    public function get($id)
+    /**
+     * get
+     *
+     * @param  int $id
+     * @return void
+     */
+    public function get(string|int|null $id): void
     {
+        $id = !is_null($id) ? $id : 0;
         $id = intval($id);
         $id = is_int($id) ? $id : 0;
-        $id = isset($id) ? $id : 0;
-        $id = !is_null($id) ? $id : 0;
 
         if ($id > 0) {
             $sql = "SELECT * FROM rental WHERE id = :id";
@@ -39,7 +51,7 @@ class Rent
             $bind = array();
         }
 
-        $data = json_decode(DB::query($sql, $bind));
+        $data = json_decode(strval(DB::query($sql, $bind)));
         if ($id > 0) {
             if ($data != false) {
                 $data = $data[0];
@@ -56,84 +68,106 @@ class Rent
         echo "</pre>";
     }
 
-    public function delete($id)
+    /**
+     * delete
+     *
+     * @param  int $id
+     * @return void
+     */
+    public function delete(string | int | null $id): void
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $id = intval($id);
-            $id = is_int($id) ? $id : 0;
-            $id = isset($id) ? $id : 0;
-            $id = !is_null($id) ? $id : 0;
-
-            $sql = "SELECT * FROM rental WHERE id = :id";
-            $bind = array(":id" => $id);
-            $result = json_decode(DB::query($sql, $bind));
-            if (!$result || $id == 0) {
-                echo "Rental $id existiert nicht.<br>";
-                return false;
-            }
-            $rental = $result[0];
-
-            $sql = "DELETE FROM rental WHERE id = :id;";
-            if (DB::query($sql, $bind)) {
-                echo "<pre>";
-                print_r($rental);
-                echo "</pre><br>";
-
-                echo "Rental $id erfolgreich gelöscht.<br>";
-            } else {
-                echo "Rental $id konnte nicht gelöscht werden.<br>";
-            }
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+        $id = !is_null($id) ? $id : 0;
+        $id = intval($id);
+        $id = is_int($id) ? $id : 0;
+
+        $sql = "SELECT * FROM rental WHERE id = :id";
+        $bind = array(":id" => $id);
+        $result = json_decode(strval(DB::query($sql, $bind)));
+        if (!$result || $id == 0) {
+            echo "Rental $id existiert nicht.<br>";
+            return;
+        }
+        $rental = $result[0];
+
+        $sql = "DELETE FROM rental WHERE id = :id;";
+        if (DB::query($sql, $bind)) {
+            echo "<pre>";
+            print_r($rental);
+            echo "</pre><br>";
+
+            echo "Rental $id erfolgreich gelöscht.<br>";
+        } else {
+            echo "Rental $id konnte nicht gelöscht werden.<br>";
         }
     }
+    /**
+     * insert
+     *
+     * @return void
+     */
     public function insert()
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "INSERT INTO rental (";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key,";
-            }
-            $sql = trim($sql, ",") . ") VALUES (";
-
-            foreach ($_POST as $key => $value) {
-                $sql .= "'$value',";
-            }
-            $sql = trim($sql, ",");
-            $sql .= ")";
-            $bind = array();
-            if (!DB::query($sql, $bind)) {
-                echo "Rental konnte nicht erstellt werden.<br>";
-            } else {
-                echo "Rental erfolgreich erstellt";
-            }
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+        $sql = "INSERT INTO rental (";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key,";
+        }
+        $sql = trim($sql, ",") . ") VALUES (";
+
+        foreach ($_POST as $key => $value) {
+            $sql .= "'$value',";
+        }
+        $sql = trim($sql, ",");
+        $sql .= ")";
+        $bind = array();
+        if (!DB::query($sql, $bind)) {
+            echo "Rental konnte nicht erstellt werden.<br>";
+        } else {
+            echo "Rental erfolgreich erstellt";
         }
     }
 
-    public function update($id)
+    /**
+     * update
+     *
+     * @param  int $id
+     * @return void
+     */
+    public function update(string | int | null $id)
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "UPDATE rental SET ";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key='$value',";
-            }
-            $sql = trim($sql, ",") . " WHERE id = :id";
-            $bind = array(":id" => $id);
-
-            echo "<br><pre>";
-            print_r(DB::query($sql, $bind));
-            echo "</pre><br>";
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
         }
+        $sql = "UPDATE rental SET ";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key='$value',";
+        }
+        $sql = trim($sql, ",") . " WHERE id = :id";
+        $bind = array(":id" => $id);
+
+        echo "<br><pre>";
+        print_r(DB::query($sql, $bind));
+        echo "</pre><br>";
     }
 
-    public function rent($id)
+    /**
+     * rent
+     *
+     * @param  int $id
+     * @return void
+     */
+    public function rent(string | int | null $id)
     {
-        $customer_id = explode("_", $id)[1];
-        $id = explode("_", $id)[0];
+        $customer_id = explode("_", strval($id))[1];
+        $id = explode("_", strval($id))[0];
         $cars = Car::freeCars();
         $ids = array();
         foreach ($cars as $car) {
@@ -142,48 +176,51 @@ class Rent
 
         $sql = "SELECT * FROM customers WHERE id = :id";
         $bind = array(":id" => $customer_id);
-        $result = json_decode(DB::query($sql, $bind));
+        $result = json_decode(strval(DB::query($sql, $bind)));
         if (!$result || $id == 0) {
             echo "Customer $id existiert nicht.<br>";
-            return false;
+            return;
         }
-
-        print_r($ids);
-        echo $id;
 
         if (is_int(array_search($id, $ids))) {
             $sql = "INSERT INTO rental (car_id, customer_id, start_date, end_date, createDate, active) VALUES ($id, $customer_id, DATE(NOW()), NULL, NOW(), 1)";
             $result = DB::query($sql);
             if ($result == false) {
-                echo "Auto kann nicht gemietet werden.<br>";
+                echo "Auto $id kann nicht gemietet werden.<br>";
             } else {
-                echo "Auto gemietet";
+                echo "Auto $id gemietet";
             }
         } else {
-            echo "Auto ist nicht verfügbar";
+            echo "Auto $id ist nicht verfügbar";
         }
     }
 
+    /**
+     * rueckgabe
+     *
+     * @param  int $id
+     * @return void
+     */
     public function rueckgabe($id)
     {
         $sql = "SELECT car_id FROM rental WHERE end_date IS NULL AND start_date IS NOT NULL";
-        $cars = json_decode(DB::query($sql));
-        
+        $cars = json_decode(strval(DB::query($sql)));
+
         $ids = array();
         foreach ($cars as $car) {
             $ids[] = $car->car_id;
         }
 
         if (is_int(array_search($id, $ids))) {
-            $sql = "UPDATE rental SET active = 0 WHERE car_id = $id AND end_date IS NULL AND start_date IS NOT NULL";
+            $sql = "UPDATE rental SET end_date = DATE(NOW()) WHERE car_id = $id AND end_date IS NULL AND start_date IS NOT NULL";
             $result = DB::query($sql);
             if ($result) {
-                echo "Auto zurückgegeben";
+                echo "Auto $id zurückgegeben";
             } else {
-                echo "Auto konnte nicht zurückgegeben werden";
+                echo "Auto $id konnte nicht zurückgegeben werden";
             }
         } else {
-            echo "Auto ist nicht ausgeliehen";
+            echo "Auto $id ist nicht ausgeliehen";
         }
     }
 }

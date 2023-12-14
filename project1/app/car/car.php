@@ -2,12 +2,11 @@
 
 namespace Noonehardy\Project1\App\Car;
 
-use Noonehardy\Project1\App\Rent\Rent;
 use Noonehardy\Project1\Data\DB;
 
 class Car
 {
-    public function __construct($method = '', $parameter = '')
+    public function __construct(string $method = '', string | int $parameter = '')
     {
         if ($method != '') {
             if ($parameter != '') {
@@ -27,12 +26,11 @@ class Car
         }
     }
 
-    public function get($id)
+    public function get(string|int|null $id): void
     {
+        $id = !is_null($id) ? $id : 0;
         $id = intval($id);
         $id = is_int($id) ? $id : 0;
-        $id = isset($id) ? $id : 0;
-        $id = !is_null($id) ? $id : 0;
 
         if ($id > 0) {
             $sql = "SELECT * FROM cars WHERE id = :id";
@@ -42,7 +40,7 @@ class Car
             $bind = array();
         }
 
-        $data = json_decode(DB::query($sql, $bind));
+        $data = json_decode(strval(DB::query($sql, $bind)));
         if ($id > 0) {
             if ($data != false) {
                 $data = $data[0];
@@ -56,83 +54,83 @@ class Car
         echo "</pre>";
     }
 
-    public function delete($id)
+    public function delete(string|int|null $id): void
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $id = intval($id);
-            $id = is_int($id) ? $id : 0;
-            $id = isset($id) ? $id : 0;
-            $id = !is_null($id) ? $id : 0;
-
-            $sql = "SELECT * FROM cars WHERE id = :id";
-            $bind = array(":id" => $id);
-            $result = json_decode(DB::query($sql, $bind));
-            if (!$result || $id == 0) {
-                echo "Car $id existiert nicht.<br>";
-                return false;
-            }
-            $car = $result[0];
-
-            $sql = "DELETE FROM cars WHERE id = :id;";
-            if (DB::query($sql, $bind)) {
-                echo "<pre>";
-                print_r($car);
-                echo "</pre><br>";
-
-                echo "Car $id erfolgreich gelöscht.<br>";
-            } else {
-                echo "Car $id konnte nicht gelöscht werden.<br>";
-            }
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
         }
-    }
-    public function insert()
-    {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "INSERT INTO cars (";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key,";
-            }
-            $sql = trim($sql, ",") . ") VALUES (";
+        $id = !is_null($id) ? $id : 0;
+        $id = intval($id);
+        $id = is_int($id) ? $id : 0;
 
-            foreach ($_POST as $key => $value) {
-                $sql .= "'$value',";
-            }
-            $sql = trim($sql, ",");
-            $sql .= ")";
-            $bind = array();
-            if (!DB::query($sql, $bind)) {
-                echo "Car konnte nicht erstellt werden.<br>";
-            } else {
-                echo "Car erfolgreich erstellt";
-            }
-        } else {
-            echo "Sie haben keine Berechtigungen um dies zu tun";
+        $sql = "SELECT * FROM cars WHERE id = :id";
+        $bind = array(":id" => $id);
+        $result = json_decode(strval(DB::query($sql, $bind)));
+        if (!$result || $id == 0) {
+            echo "Car $id existiert nicht.<br>";
+            return;
         }
-    }
+        $car = $result[0];
 
-    public function update($id)
-    {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "UPDATE cars SET ";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key='$value',";
-            }
-            $sql = trim($sql, ",") . " WHERE id = :id";
-            $bind = array(":id" => $id);
-
-            echo "<br><pre>";
-            print_r(DB::query($sql, $bind));
+        $sql = "DELETE FROM cars WHERE id = :id;";
+        if (DB::query($sql, $bind)) {
+            echo "<pre>";
+            print_r($car);
             echo "</pre><br>";
+
+            echo "Car $id erfolgreich gelöscht.<br>";
         } else {
+            echo "Car $id konnte nicht gelöscht werden.<br>";
+        }
+    }
+    public function insert(): void
+    {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+        $sql = "INSERT INTO cars (";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key,";
+        }
+        $sql = trim($sql, ",") . ") VALUES (";
+
+        foreach ($_POST as $key => $value) {
+            $sql .= "'$value',";
+        }
+        $sql = trim($sql, ",");
+        $sql .= ")";
+        $bind = array();
+        if (!DB::query($sql, $bind)) {
+            echo "Car konnte nicht erstellt werden.<br>";
+        } else {
+            echo "Car erfolgreich erstellt";
         }
     }
 
-    public static function freeCars() {
+    public function update(string|int|null $id): void
+    {
+        if ($_SESSION["RIGHTS"] == 0) {
+            echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+        $sql = "UPDATE cars SET ";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key='$value',";
+        }
+        $sql = trim($sql, ",") . " WHERE id = :id";
+        $bind = array(":id" => $id);
+
+        echo "<br><pre>";
+        print_r(DB::query($sql, $bind));
+        echo "</pre><br>";
+    }
+
+    public static function freeCars(): array
+    {
         $sql = "SELECT * FROM cars WHERE id not IN (SELECT car_id FROM m295.rental WHERE end_date IS NULL);";
-        $cars = json_decode(DB::query($sql));
+        $cars = json_decode(strval(DB::query($sql)));
 
         return $cars;
     }

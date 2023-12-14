@@ -2,11 +2,11 @@
 
 namespace Noonehardy\Project1\App\Customer;
 
-use Noonehardy\Project1\data\DB;
+use Noonehardy\Project1\Data\DB;
 
 class Customer
 {
-    public function __construct($method = '', $parameter = '')
+    public function __construct(string $method = '', string | int $parameter = '')
     {
         if ($method != '') {
             if ($parameter != '') {
@@ -23,12 +23,11 @@ class Customer
         }
     }
 
-    public function get($id)
+    public function get(string | int | null $id): void
     {
+        $id = !is_null($id) ? $id : 0;
         $id = intval($id);
         $id = is_int($id) ? $id : 0;
-        $id = isset($id) ? $id : 0;
-        $id = !is_null($id) ? $id : 0;
 
         if ($id > 0) {
             $sql = "SELECT * FROM customers WHERE id = :id";
@@ -38,7 +37,7 @@ class Customer
             $bind = array();
         }
 
-        $data = json_decode(DB::query($sql, $bind));
+        $data = json_decode(strval(DB::query($sql, $bind)));
         if ($id > 0) {
             if ($data != false) {
                 $data = $data[0];
@@ -55,20 +54,22 @@ class Customer
         echo "</pre>";
     }
 
-    public function delete($id)
+    public function delete(string | int | null $id): void
     {
-        if ($_SESSION["RIGHTS"] == 1) {
+        if ($_SESSION["RIGHTS"] == 0) {
+            echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+            $id = !is_null($id) ? $id : 0;
             $id = intval($id);
             $id = is_int($id) ? $id : 0;
-            $id = isset($id) ? $id : 0;
-            $id = !is_null($id) ? $id : 0;
 
             $sql = "SELECT * FROM customers WHERE id = :id";
             $bind = array(":id" => $id);
-            $result = json_decode(DB::query($sql, $bind));
+            $result = json_decode(strval(DB::query($sql, $bind)));
             if (!$result || $id == 0) {
                 echo "Customer $id existiert nicht.<br>";
-                return false;
+                return;
             }
             $customer = $result[0];
 
@@ -82,51 +83,48 @@ class Customer
             } else {
                 echo "Customer $id konnte nicht gelöscht werden.<br>";
             }
-        } else {
-            echo "Sie haben keine Berechtigungen um dies zu tun";
-        }
     }
-    public function insert()
+    public function insert(): void
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "INSERT INTO customers (";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key,";
-            }
-            $sql = trim($sql, ",") . ") VALUES (";
-
-            foreach ($_POST as $key => $value) {
-                $sql .= "'$value',";
-            }
-            $sql = trim($sql, ",");
-            $sql .= ")";
-            $bind = array();
-            if (!DB::query($sql, $bind)) {
-                echo "Customer konnte nicht erstellt werden.<br>";
-            } else {
-                echo "Customer erfolgreich erstellt";
-            }
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
+        }
+        $sql = "INSERT INTO customers (";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key,";
+        }
+        $sql = trim($sql, ",") . ") VALUES (";
+
+        foreach ($_POST as $key => $value) {
+            $sql .= "'$value',";
+        }
+        $sql = trim($sql, ",");
+        $sql .= ")";
+        $bind = array();
+        if (!DB::query($sql, $bind)) {
+            echo "Customer konnte nicht erstellt werden.<br>";
+        } else {
+            echo "Customer erfolgreich erstellt";
         }
     }
 
-    public function update($id)
+    public function update(string|int|null $id): void
     {
-        if ($_SESSION["RIGHTS"] == 1) {
-            $sql = "UPDATE customers SET ";
-            foreach ($_POST as $key => $value) {
-                $sql .= "$key='$value',";
-            }
-            $sql = trim($sql, ",") . " WHERE id = :id";
-            $bind = array(":id" => $id);
-
-            echo "<br><pre>";
-            print_r(DB::query($sql, $bind));
-            echo "</pre><br>";
-        } else {
+        if ($_SESSION["RIGHTS"] == 0) {
             echo "Sie haben keine Berechtigungen um dies zu tun";
+            return;
         }
+        $sql = "UPDATE customers SET ";
+        foreach ($_POST as $key => $value) {
+            $sql .= "$key='$value',";
+        }
+        $sql = trim($sql, ",") . " WHERE id = :id";
+        $bind = array(":id" => $id);
+
+        echo "<br><pre>";
+        print_r(DB::query($sql, $bind));
+        echo "</pre><br>";
     }
 }
 

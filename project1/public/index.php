@@ -1,5 +1,7 @@
 <?php
 
+// declare(strict_types=1);
+
 session_start();
 if (!isset($_SESSION["RIGHTS"])) {
     $_SESSION["RIGHTS"] = 0;
@@ -15,6 +17,21 @@ DB::checkDB('m295');
 
 Route::add('/', function () {
     echo "Welcome :-)";
+});
+
+Route::add('/login', function () {
+    $name = isset($_GET["name"]) ? $_GET["name"] : "";
+    $pw = isset($_GET["pw"]) ? $_GET["pw"] : "";
+    if ($name == $pw && $name == 'admin') {
+        $_SESSION["RIGHTS"] = 1;
+        echo "Logged in";
+    } else {
+        echo "Username or password is wrong";
+    }
+});
+Route::add('/logout', function () {
+    $_SESSION["RIGHTS"] = 0;
+    echo "Logged out";
 });
 Route::add('/([a-zA-Z0-9]*)', function ($class) {
     $class = "Noonehardy\\Project1\\App\\$class\\$class";

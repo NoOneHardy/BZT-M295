@@ -16,5 +16,8 @@
     ],
     "require": {
         "steampixel/simple-php-router": "^0.7.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10"
     }
 }
