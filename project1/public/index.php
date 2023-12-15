@@ -43,7 +43,7 @@ Route::add('/([a-zA-Z0-9]*)', function ($class) {
         echo $html;
         echo "<code><span>Diese Klasse existiert nicht</span><code>";
     }
-});
+}, ['get', 'post']);
 Route::add('/([a-zA-Z0-9]*)/([a-zA-Z0-9]*)', function ($class, $method) {
     $class = "Noonehardy\\Project1\\App\\$class\\$class";
     if (class_exists($class)) {
@@ -59,7 +59,7 @@ Route::add('/([a-zA-Z0-9]*)/([a-zA-Z0-9]*)', function ($class, $method) {
         echo $html;
         echo "<code><span>Diese Klasse existiert nicht</span><code>";
     }
-});
+}, ['get', 'post']);
 Route::add('/([a-zA-Z0-9]*)/([a-zA-Z0-9]*)/([a-zA-Z0-9_]*)', function ($class, $method, $parameter) {
     $class = "Noonehardy\\Project1\\App\\$class\\$class";
     if (class_exists($class)) {
@@ -75,7 +75,7 @@ Route::add('/([a-zA-Z0-9]*)/([a-zA-Z0-9]*)/([a-zA-Z0-9_]*)', function ($class, $
         echo $html;
         echo "<code><span>Diese Klasse existiert nicht</span><code>";
     }
-});
+}, ['get', 'post']);
 Route::add('/info', function () {
     phpinfo();
 }, 'get');
