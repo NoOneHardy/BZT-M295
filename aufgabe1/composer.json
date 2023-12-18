@@ -1,0 +1,17 @@
+{
+    "name": "no1ha/aufgabe1",
+    "autoload": {
+        "psr-4": {
+            "No1ha\\Aufgabe1\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "NoOneHardy",
+            "email": "silas.hardegger@outlook.com"
+        }
+    ],
+    "require": {
+        "steampixel/simple-php-router": "^0.7.1"
+    }
+}
